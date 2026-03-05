@@ -6,39 +6,55 @@ import { sendOtpMail } from "../utils/mail.js";
 export const Signup = async (req, res) => {
     try {
         const { fullName, email, mobile, role, password } = req.body;
+
         let user = await User.findOne({ email });
+
         if (user) {
-            return res.status(400).json({ message: "User Already Exist" });
+            return res.status(400).json({ message: "User Already Exists" });
         }
+
         if (password.length < 6) {
-            return res.status(400).json({ message: "Password At Least 6 Characters" });
+            return res.status(400).json({ message: "Password must be at least 6 characters" });
         }
-        if (mobile.length < 10) {
-            return res.status(400).json({ message: "Phone Number must be 10 digits" });
+
+        if (mobile.length !== 10) {
+            return res.status(400).json({ message: "Phone number must be 10 digits" });
         }
 
         const hashPassword = await bcrypt.hash(password, 10);
+
         user = await User.create({
             fullName,
             email,
             mobile,
+            role,
             password: hashPassword
         });
 
         const token = await getToken(user._id);
+
         res.cookie("token", token, {
             secure: false,
             sameSite: "strict",
-            maxAge: "7*24*60*60*1000",
-            httpOnly: true
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        return res.status(201).json(user);
+        return res.status(201).json({
+            message: "Signup successful",
+            user: {
+                id: user._id,
+                fullName: user.fullName,
+                email: user.email,
+                mobile: user.mobile,
+                role: user.role
+            }
+        });
 
     } catch (error) {
-        return res.status(500).json(`signup error ${error}`);
+        return res.status(500).json({ message: `Signup error ${error.message}` });
     }
-}
+};
 
 
 export const SignIn = async (req, res) => {

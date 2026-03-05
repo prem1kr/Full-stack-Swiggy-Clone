@@ -45,30 +45,37 @@ export const Signup = async (req, res) => {
 export const SignIn = async (req, res) => {
     try {
         const { email, password } = req.body;
-        let user = await User.findOne({ email });
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and Password are required" });
+        }
+
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "User Not Registered !, Please SignUp First !" });
+            return res.status(400).json({ message: "Invalid Email or Password" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Password Does Not Matched" });
+            return res.status(400).json({ message: "Invalid Email or Password" });
         }
 
         const token = await getToken(user._id);
+
         res.cookie("token", token, {
+            httpOnly: true,
             secure: false,
             sameSite: "strict",
-            maxAge: "7*24*60*60*1000",
-            httpOnly: true
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         return res.status(200).json(user);
 
     } catch (error) {
-        return res.status(500).json(`Error in Sigin ${error}`);
+        return res.status(500).json({
+            message: `Error in SignIn: ${error.message}`
+        });
     }
-}
+};
 
 
 export const SignOut = async (req, res) => {

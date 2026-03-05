@@ -131,22 +131,24 @@ export const verifyOtp = async (req, res) => {
 
 
 export const resetPassword = async (req, res) => {
-    try {
-        const { email, newPassword } = req.body;
-        let user = await User.findOne({ email });
-        if (!user || !user.isOtpVerified) {
-            return res.status(400).json({ message: "otp verification required" });
-        }
-
-        const hashPassword = bcrypt.hash(newPassword, 10);
-        user.password = hashPassword;
-        user.isOtpVerified = false;
-        await user.save();
-        return res.status(200).json({ message: "opt sent successfully" });
-    } catch (error) {
-        return res.status(500).json(`${error}`);
+  try {
+    const { email, newPassword } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || !user.otpVerified) {
+      return res.status(400).json({ message: "OTP verification required" });
     }
-}
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashPassword;
+    user.otpVerified = false;
+    await user.save();
+    return res.status(200).json({ message: "Password reset successfully" });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Reset password error" });
+  }
+};
 
 
 export const googleAuth = async (req, res) => {

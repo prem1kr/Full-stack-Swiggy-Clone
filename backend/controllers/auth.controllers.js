@@ -91,23 +91,26 @@ export const SignOut = async (req, res) => {
 export const sendOtp = async (req, res) => {
     try {
         const { email } = req.body;
-        let user = await User.findOne({ email });
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: "User does not exist" });
         }
-        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
         user.resetOtp = otp;
         user.otpExpires = Date.now() + 5 * 60 * 1000;
-        user.isOtpVerified = false,
-            await user.save();
-
-        sendOtpMail(email, otp);
-        return res.status(200).json({ message: "Otp sent successfully" });
+        user.isOtpVerified = false;
+        
+        await user.save();
+        await sendOtpMail(email, otp);
+        return res.status(200).json({ message: "OTP sent successfully" });
 
     } catch (error) {
-        return res.status(500).json(`send otp error ${error}`);
+        return res.status(500).json({
+            message: `Send OTP error: ${error.message}`
+        });
     }
-}
+};
 
 
 export const verifyOtp = async (req, res) => {

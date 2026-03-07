@@ -15,7 +15,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   useGetUser();
   
-  const {userData, authLoading} = useSelector(state=>state.user);
+  const {userData} = useSelector(state=>state.user);
 
   useEffect(() => {
   const timer = setTimeout(() => {
@@ -25,7 +25,7 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading || authLoading) {
+  if (loading) {
     return <Loading />;
   }
 

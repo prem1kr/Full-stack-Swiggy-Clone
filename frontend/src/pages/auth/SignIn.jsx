@@ -8,6 +8,8 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../utils/firebase.js";
 import { ErrorMessage } from "../../utils/ErrorMessage.jsx";
 import { LoadingBtn } from "../../components/ui/Button/Button.jsx";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../../redux/user.js";
 
 
 export const SignIn = () => {
@@ -17,7 +19,7 @@ export const SignIn = () => {
   const navigate = useNavigate();
   const [err, setErr] = useState();
   const [LoadingButton, setLoadingButton] = useState(false);
-
+  const dispatch = useDispatch();
   // Colors
   const primaryColor = "#f97316";
   const hoverColor = "#ea580c";
@@ -31,6 +33,8 @@ export const SignIn = () => {
       const result = await axios.post(`${serverUrl}/api/auth/signin`, {
         email, password
       }, { withCredentials: true });
+
+      dispatch(setUserData(result.data));
       console.log(result);
       setErr("");
     } catch (error) {
@@ -49,6 +53,8 @@ export const SignIn = () => {
       const data = await axios.post(`${serverUrl}/api/auth/google-auth`, {
         email: result.user.email,
       }, { withCredentials: true });
+
+      dispatch(setUserData(data));
       console.log(data);
     } catch (error) {
       console.log(error);

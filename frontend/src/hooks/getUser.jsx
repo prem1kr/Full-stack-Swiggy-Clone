@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { serverUrl} from "../App.jsx";
+import {serverUrl} from "../App.jsx";
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { setUserData } from '../redux/user.js';
+import { setUserData} from '../redux/user.js';
 
 export default function useGetUser() {
     const dispatch = useDispatch();
